@@ -3,16 +3,14 @@
 
 Un carnet par binôme, rempli au fil de l'eau avec vos propres mots. Une phrase honnête (« j'ai essayé X, j'ai vu Y, je ne comprends pas pourquoi ») vaut mieux qu'une phrase parfaite recopiée. Aucune donnée personnelle, aucune clé ni jeton, ni l'adresse complète que `dsh web` affiche (elle contient un jeton). C'est aussi votre journal de décisions (astuce 13) : ce que vous avez demandé, ce qui a cassé, ce que vous avez refusé, et pourquoi.
 
-Binôme : Thomas KLEMPOUZ-RAMOS, Rayan ZOUAOUI
+Binôme :
 
-Thème provisoire et public visé : 
-- Recettes et techniques de cuisine
-- Aux fourneaux, les amateurs et débutants en cuisine fait maison
+Thème provisoire et public visé :
 
 Trois questions auxquelles l'assistant pourrait répondre :
-1. Comment bien couper sa viande ?
-2. Comment bien s'assurer pour son temps de cuissont ?
-3. Quel matière grasse et recomender pour frire une escalope ?
+1.
+2.
+3.
 
 Rôles de départ et moments d'échange :
 
@@ -24,19 +22,12 @@ Recopiez les valeurs telles que le formateur vous les a remises. Ne les changez 
 - Premier mot reconnu, en plus de « salut », « aide » et « test » :
 - Second mot reconnu :
 
-===== b19 =====
-Vos réglages, binôme b19 (seulement pour vous) :
-   Limite : 250
-   Mot 1 : prairie
-   Mot 2 : ponton
-Recopiez ces 3 valeurs dans carnet.md, section Cahier personnel, sur les 3 lignes prévues. Ne les donnez à aucun autre binôme.
-
 ## Commandes essayées
 
 Notez le dossier de lancement, la commande et sa sortie exacte, surtout quand un outil a bloqué.
 
-- Dossier : C:\Rayan\Mastère-Managère-DEV-FULL-Stack\M1\Renforcement_dev_web\cap-web-j1\atelier
-- Commande et résultat : 
+- Dossier :
+- Commande et résultat :
 
 Pour chaque checkpoint : cochez la case quand toute la preuve de la fiche est réunie, collez la preuve (texte, commande ou phrase), puis notez ce que vous avez prédit, essayé, observé, et une difficulté qui reste.
 
@@ -44,11 +35,11 @@ Pour chaque checkpoint : cochez la case quand toute la preuve de la fiche est r�
 
 ### J1-01 · 🧭 Équipage — [fiche](checkpoints/J1-01-equipage.md)
 
-- [✅️] Validé
-- Preuve (page de départ affichée sur votre poste, cahier personnel recopié ci-dessus) : La page de départ s'affiche correctement sur notre poste à l'adresse http://127.0.0.1:3000/.
-- Le `p#status` est-il vide dans le HTML ? Qui écrit sa phrase ? : Oui, le p#status est vide dans le HTML. C'est le fichier app.js qui écrit la phrase « Votre point de départ est prêt. » grâce à JavaScript :document.querySelector('#status').textContent = 'Votre point de départ est prêt.';
-- Décision prise ensemble : Nous avons choisi notre thème provisoire et défini les rôles de départ dans le binôme. Nous échangeons les rôles régulièrement.
-- Difficulté qui reste : Aucune difficulté pour le lancement du serveur.
+- [ ] Validé
+- Preuve (page de départ affichée sur votre poste, cahier personnel recopié ci-dessus) :
+- Le `p#status` est-il vide dans le HTML ? Qui écrit sa phrase ?
+- Décision prise ensemble :
+- Difficulté qui reste :
 
 ### J1-02 · 💬 Premier prompt — [fiche](checkpoints/J1-02-premier-prompt.md)
 

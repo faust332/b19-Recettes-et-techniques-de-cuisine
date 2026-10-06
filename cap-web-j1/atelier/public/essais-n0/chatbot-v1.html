@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aux Fourneaux — Ton coach cuisine maison</title>
+    <style>
+      :root {
+        --bg: #faf6f0;
+        --card: #ffffff;
+        --ink: #3b2f2a;
+        --muted: #8a7a6d;
+        --accent: #e07a3f;
+        --accent-soft: #fbe9dc;
+        --green: #5c8a5c;
+        --border: #eee2d6;
+        --radius: 14px;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        background: linear-gradient(135deg, #e07a3f, #c95d2e);
+        color: #fff;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,.12);
+      }
+      header .logo {
+        width: 42px; height: 42px;
+        background: #fff;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      header h1 { margin: 0; font-size: 1.15rem; }
+      header p { margin: 2px 0 0; font-size: .8rem; opacity: .9; }
+      #chat {
+        flex: 1;
+        overflow-y: auto;
+        padding: 18px;
+        max-width: 820px;
+        width: 100%;
+        margin: 0 auto;
+      }
+      .msg {
+        max-width: 85%;
+        padding: 10px 14px;
+        border-radius: var(--radius);
+        margin-bottom: 12px;
+        line-height: 1.5;
+        font-size: .95rem;
+        white-space: pre-wrap;
+        animation: pop .18s ease-out;
+      }
+      @keyframes pop { from { transform: translateY(6px); opacity: 0; } }
+      .bot { background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+      .user { background: var(--accent); color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
+      .msg b { color: var(--accent); }
+      .msg ul { margin: 6px 0; padding-left: 20px; }
+      .chips {
+        display: flex; flex-wrap: wrap; gap: 8px;
+        max-width: 820px; width: 100%; margin: 0 auto; padding: 0 18px 10px;
+      }
+      .chip {
+        background: var(--accent-soft);
+        color: #b45a24;
+        border: 1px solid #f0cdb4;
+        border-radius: 999px;
+        padding: 6px 13px;
+        font-size: .82rem;
+        cursor: pointer;
+        user-select: none;
+        transition: transform .12s;
+      }
+      .chip:hover { transform: scale(1.05); background: #f8dcc8; }
+      footer {
+        display: flex; gap: 10px;
+        padding: 12px 18px 16px;
+        background: var(--bg);
+        border-top: 1px solid var(--border);
+      }
+      footer form { display: flex; gap: 10px; max-width: 820px; width: 100%; margin: 0 auto; }
+      #input {
+        flex: 1;
+        border: 2px solid var(--border);
+        border-radius: 999px;
+        padding: 11px 18px;
+        font-size: .95rem;
+        outline: none;
+        background: var(--card);
+      }
+      #input:focus { border-color: var(--accent); }
+      #send {
+        background: var(--accent);
+        border: none;
+        color: #fff;
+        border-radius: 999px;
+        padding: 11px 22px;
+        font-size: .95rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      #send:hover { background: #cf6a33; }
+      .typing { display: inline-flex; gap: 4px; padding: 14px 16px; }
+      .typing span {
+        width: 7px; height: 7px; background: #d8c7b8; border-radius: 50%;
+        animation: blink 1s infinite;
+      }
+      .typing span:nth-child(2) { animation-delay: .2s; }
+      .typing span:nth-child(3) { animation-delay: .4s; }
+      @keyframes blink { 50% { opacity: .25; transform: translateY(-3px); } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">🍳</div>
+      <div>
+        <h1>Aux Fourneaux</h1>
+        <p>Ton assistant cuisine maison, pensé pour les débutants</p>
+      </div>
+    </header>
+
+    <div id="chat"></div>
+    <div class="chips" id="chips"></div>
+
+    <footer>
+      <form id="form" autocomplete="off">
+        <input id="input" type="text" placeholder="Pose ta question cuisine… (ex : « une recette de pâtes facile »)" />
+        <button id="send" type="submit">Envoyer</button>
+      </form>
+    </footer>
+
+    <script>
+      // ---------- Base de connaissances ----------
+      const RECETTES = {
+        "pâtes": {
+          nom: "Pâtes à la sauce tomate ail & basilic",
+          temps: "20 min",
+          difficulte: "Très facile",
+          pour: "2 personnes",
+          etapes: [
+            "Porte une grande casserole d'eau salée à ébullition (environ 1 L pour 100 g de pâtes).",
+            "Plonge les pâtes et laisse cuire le temps indiqué sur le paquet (8–11 min), en remuant au début pour qu'elles ne collent pas.",
+            "Pendant ce temps, fais chauffer 2 c. à soupe d'huile d'olive dans une poêle à feu moyen, ajoute 2 gousses d'ail émincées, 1 min sans colorer.",
+            "Ajoute une brique de coulis de tomate (400 g), du sel, du poivre, une pincée de sucre pour l'acidité. Laisse mijoter 8 min.",
+            "Égoutte les pâtes en gardant une louche d'eau de cuisson, mélange-les dans la sauce avec un peu de cette eau : c'est le secret d'une sauce qui accroche.",
+            "Sers avec du basilic frais et un peu de parmesan."
+          ]
+        },
+        "omelette": {
+          nom: "Omelette moelleuse",
+          temps: "10 min",
+          difficulte: "Très facile",
+          pour: "1–2 personnes",
+          etapes: [
+            "Casse 3 œufs dans un bol, sale, poivre, bats-les 30 secondes à la fourchette (pas besoin de faire de la mousse).",
+            "Fais chauffer une noix de beurre dans une poêle à feu moyen : il doit mousse mais pas noircir.",
+            "Verse les œufs, remue doucement 30 secondes avec une spatule en ramenant les bords vers le centre.",
+            "Quand le dessous est pris mais le dessus encore légèrement coulant, replie l'omelette en trois et sers aussitôt : elle finit de cuire hors du feu."
+          ]
+        },
+        "riz": {
+          nom: "Riz parfait (méthode absorption)",
+          temps: "20 min",
+          difficulte: "Très facile",
+          pour: "2 personnes",
+          etapes: [
+            "Rince 150 g de riz à l'eau froide jusqu'à ce que l'eau soit claire : ça évite qu'il colle.",
+            "Mets le riz dans une casserole avec 1,5 volume d'eau pour 1 volume de riz (ici 225 ml) et une pincée de sel.",
+            "Porte à ébullition, puis baisse au feu le plus faible, couvre, et laisse 12 min sans jamais soulever le couvercle.",
+            "Coupe le feu, laisse reposer 5 min couvercle fermé, puis sépare les grains à la fourchette."
+          ]
+        },
+        "poulet": {
+          nom: "Poulet rôti au four simple",
+          temps: "1 h 15",
+          difficulte: "Facile",
+          pour: "4 personnes",
+          etapes: [
+            "Préchauffe le four à 200 °C (thermostat 6-7).",
+            "Sèche le poulet avec du papier absorbant (c'est important pour une peau croustillante), sale et poivre l'intérieur et l'extérieur, ajoute un demi-citron et du thym dans la cavité.",
+            "Pose-le dans un plat, badigeonne d'huile d'olive ou de beurre fondu.",
+            "Enfourne 50 à 60 min : il est cuit quand la température à cuisse atteint 75 °C, ou quand le jus qui perçe est clair (pas rosé).",
+            "Laisse reposer 10 min sous une feuille de papier alu avant de découper : la viande reste juteuse."
+          ]
+        },
+        "crêpes": {
+          nom: "Pâte à crêpes inratable",
+          temps: "30 min + repos 1 h",
+          difficulte: "Facile",
+          pour: "Environ 15 crêpes",
+          etapes: [
+            "Mélange 250 g de farine et une pincée de sel dans un grand saladier.",
+            "Casse 2 œufs au centre, mélange, puis verse petit à petit 500 ml de lait en fouettant pour éviter les grumeaux.",
+            "Ajoute 2 c. à soupe d'huile (ou 40 g de beurre fondu) et 1 c. à soupe de sucre si tu veux des crêpes sucrées.",
+            "Laisse reposer la pâte 1 h à température ambiante : les crêpes seront plus souples.",
+            "Fais chauffer une poêle légèrement huilée à feu vif, verse une louche de pâte en tournant la poêle pour l'étaler.",
+            "Retourne dès que les bords se décollent (1–2 min). Bonne nouvelle : la première crêpe rate toujours, c'est normal !"
+          ]
+        },
+        "soupe": {
+          nom: "Velouté de légumes maison",
+          temps: "35 min",
+          difficulte: "Très facile",
+          pour: "4 personnes",
+          etapes: [
+            "Épluche et coupe en morceaux 2 carottes, 2 pommes de terre, 1 poireau, 1 oignon.",
+            "Fais revenir l'oignon 3 min dans un peu d'huile d'olive dans une cocotte.",
+            "Ajoute le reste des légumes, couvre d'eau à hauteur (environ 1 L), sale, porte à ébullition puis laisse mijoter 25 min à couvert.",
+            "Mixe au blender ou au mixeur plongeant jusqu'à obtenir une texture lisse. Ajuste l'épaisseur avec un peu d'eau ou de lait.",
+            "Relève avec une noix de beurre, du poivre, quelques croûtons. Tu peux varier à l'infini : courgette, potimarron, patate douce…"
+          ]
+        },
+        "gâteau": {
+          nom: "Gâteau au yaourt (le gâteau des débutants)",
+          temps: "45 min",
+          difficulte: "Très facile",
+          pour: "6 personnes",
+          etapes: [
+            "Préchauffe le four à 180 °C. Beurre un moule.",
+            "Dans un saladier, mélange 1 pot de yaourt nature, 2 pots de sucre, 3 œufs, puis 3 pots de farine et 1 sachet de levure chimique.",
+            "Ajoute ½ pot d'huile ou 100 g de beurre fondu, une pincée de sel, éventuellement un peu de vanille ou des pépites de chocolat.",
+            "Verse dans le moule et fais cuire 35 min : vérifie avec la pointe d'un couteau — elle doit ressortir sèche.",
+            "Astuce : le pot de yaourt sert de doseur pour tout le gâteau, aucune balance nécessaire !"
+          ]
+        },
+        "salade": {
+          nom: "Salade composée complète",
+          temps: "15 min",
+          difficulte: "Très facile",
+          pour: "2 personnes",
+          etapes: [
+            "Lave et essore 200 g de salade verte.",
+            "Ajoute des ingrédients qui rassasient : tomates cerises, œuf dur, avocat, maïs, restes de poulet, pois chiches, fromage frais.",
+            "Vinaigrette maison (bien meilleure que l'industrielle) : 3 c. à soupe d'huile d'olive + 1 c. à soupe de vinaigre + 1 c. à café de moutarde + sel + poivre, secoue dans un bocal fermé.",
+            "Assaisonne seulement au moment de servir pour garder le croquant."
+          ]
+        }
+      };
+
+      const CONSEILS = [
+        {
+          keys: ["couteau", "éplucher", "tailler", "couper"],
+          reponse: "🔪 <b>Bien utiliser son couteau</b>\n• Prends un couteau d'office (10–12 cm) pour l'épluchage, un couteau de chef (20 cm) pour découper.\n• Courbe les doigts qui tiennent l'aliment : les phalanges servent de guide à la lame.\n• Affûte régulièrement : un couteau qui coupe bien est moins dangereux qu'un couteau émoussé.\n• Coupe à plat de travail stable : mets un torchon humide sous ta planche."
+        },
+        {
+          keys: ["thermostat", "four", "degré", "°c", "température"],
+          reponse: "🌡️ <b>Le four en thermostat</b>\n• T1 = 140 °C · T3 = 160 °C · T5 = 180 °C · T6 = 200 °C · T7 = 220 °C · T8 = 240 °C\n• Astuce : multiplie le thermostat par 30 et enlève 20.\n• La plupart des gâteaux cuisent à 180 °C (T5), les rôtis à 200 °C (T6).\n• Préchauffe toujours ton four pendant 10–15 min, sauf indication contraire."
+        },
+        {
+          keys: ["ustensile", "équipement", "matériel", "acheter", "débutant", "commencer", "base"],
+          reponse: "🛒 <b>Les 7 essentiels pour bien démarrer</b>\n1. Une bonne poêle antiadhésive (24–28 cm)\n2. Deux casseroles (une petite, une grande)\n3. Un couteau de chef + un couteau d'office bien affûtés\n4. Une planche à découper (2 si possible : viande / légumes)\n5. Un mixeur plongeant (soupes, purées, sauces)\n6. Une balance et/ou des dosettes\n7. Un thermomètre de cuisson (change la vie pour la viande !)"
+        },
+        {
+          keys: ["dml", "dangers", "sécurité", "hygiène", "laver", "salmonelle", "croisée"],
+          reponse: "🧼 <b>Hygiène et sécurité en cuisine</b>\n• Lave-toi les mains avant de commencer et après avoir touché de la viande ou des œufs.\n• Ne rince pas le poulet cru : ça projette des bactéries autour de l'évier. Cuis-le bien, c'est ce qui le rend sûr.\n• Utilise des planches et ustensiles séparés pour la viande crue et le reste.\n• Les viandes blanches : cuites à cœur (jus clair). Le bœuf haché : jamais rosé.\n• Couteau qui glisse = pansement ! Coupe lentement, sur planche stable."
+        },
+        {
+          keys: ["conversion", "gramme", "ml", "cl", "tasse", "mesure", "cuillère"],
+          reponse: "📏 <b>Conversions utiles</b>\n• 1 c. à café = 5 ml · 1 c. à soupe = 15 ml\n• 1 tasse = 240 ml ≈ 250 ml de liquide\n• Farine : 1 tasse ≈ 120 g · Sucre : 1 tasse ≈ 200 g · Riz cru : 1 tasse ≈ 200 g\n• Beurre : 100 g ≈ 7 c. à soupe · 1 œuf ≈ 50 g sans coquille\n• 1 pincée de sel ≈ 1 g"
+        },
+        {
+          keys: ["grumeau", "raté", "ratage", "rater", "trop salé", "trop cuit", "sauver", "sauvetage", "rattraper"],
+          reponse: "🩹 <b>Premiers secours cuisine</b>\n• Sauce avec grumeaux → passe-la au chinois ou mixe-la.\n• Plat trop salé → ajoute une pomme de terre crue dans le liquide, ou un trait de crème.\n• Sauce trop liquide → 1 c. de maïzena délayée dans un peu d'eau froide, 1 min de cuisson.\n• Viande trop cuite → tranche finement, sers avec une sauce.\n• Gâteau qui retombe → tu l'as sûrement ouvert la porte du four en pleine cuisson ! Laisse-le reposer sous un torchon, il se rattrape au nappage chocolat 😄"
+        },
+        {
+          keys: ["restes", "gaspillage", "conserver", "conservation", "frigo", "freeze", "congel"],
+          reponse: "♻️ <b>Bien conserver et anti-gaspi</b>\n• Refroidis les restes avant de les mettre au frigo (dans les 2 h), et consomme-les sous 3 jours.\n• Congèle en portions individuelles avec la date : la plupart des plats se gardent 3 mois.\n• Le riz cuit refroidi doit passer vite au frigo et être bien réchauffé.\n• Un reste de légumes rôtis = soupe ou frittata. Du pain rassis = croûtons, pain perdu, chapelure.\n• Herbes qui fanent → ciselées dans l'huile, en bacs à glaçons !"
+        },
+        {
+          keys: ["assaisonner", "assaisonnement", "saveur", "fade", "goûter"],
+          reponse: "🧂 <b>Bien assaisonner</b>\n• Sale l'eau de cuisson des pâtes, riz et légumes : c'est là que ça compte.\n• Goûte toujours en fin de cuisson, et ajuste sel puis acidité (citron, vinaigre) : un plat fade manque souvent d'acide, pas de sel.\n• Finis par une matière grasse de qualité (beurre, huile d'olive) et du poivre fraîchement moulu.\n• Le goût se construit en couches : aromates au début, sel au milieu, touche fraîche à la fin (zestes, herbes)."
+        },
+        {
+          keys: ["santé", "équilibré", "maigrir", "léger", "healthy", "manger mieux"],
+          reponse: "🥗 <b>Cuisiner maison et équilibré</b>\n• La règle simple : la moitié de l'assiette en légumes, un quart de féculents, un quart de protéines.\n• Cuisine à l'eau, à la vapeur, au four ou en poêle antiadhésive plutôt qu'en friture.\n• Les sauces maison te permettent de contrôler sel, sucre et gras.\n• Fais des batchs : une grosse casserole de soupe ou de sauce tomate le dimanche = 3 repas express dans la semaine."
+        },
+        {
+          keys: ["chocolat", "fondre", "temperage", "casserole brûlée"],
+          reponse: "🍫 <b>Travailler le chocolat</b>\n• Fonds-le au bain-marie, feu doux, jamais directement : le chocolat brûle à partir de 45 °C et devient granuleux.\n• Le micro-ondes marche aussi : 30 s, remue, 30 s, remue… l'œil compte moins que le toucher, le chocolat garde sa forme en fondant.\n• Une trace d'eau et il saisit : garde tout bien sec."
+        }
+      ];
+
+      const VULGARISATION = [
+        {
+          keys: ["blanchir", "blondir"],
+          reponse: "<b>Blanchir / blondir</b> : faire chauffer un aliment (souvent oignon ou farine) dans de la matière grasse à feu doux jusqu'à ce qu'il devienne translucide/doré, sans le colorer. Compte 2 à 5 minutes à feu moyen-doux."
+        },
+        {
+          keys: ["mise en place", "dépouiller"],
+          reponse: "<b>« Mise en place »</b> : préparer et mesurer tous les ingrédients avant d'allumer le feu. C'est LA bonne habitude des débutants : tu ne pars plus en panique en pleine cuisson !\n<b>Dépouiller</b> : écumer la pellicule grasse qui se forme en surface d'un bouillon ou d'une sauce."
+        },
+        {
+          keys: ["réduire", "réduction", "déglacer"],
+          reponse: "<b>Réduire</b> : laisser une sauce bouillir pour évaporer l'eau et concentrer les saveurs.\n<b>Déglacer</b> : verser un liquide (vin, bouillon, eau) dans une poêle chaude après cuisson d'une viande pour dissoudre les sucs caramélisés collés au fond — c'est là que tout le goût se cache. Gratte avec une spatule en bois."
+        },
+        {
+          keys: ["saisir", "saisir la viande", "colorer la viande"],
+          reponse: "<b>Saisir</b> : faire cuire un aliment à feu vif pour créer une croûte dorée. La viande doit chanter (crépitement franc) — si elle accroche, elle n'est pas prête à être retournée : laisse-la se décoller toute seule."
+        },
+        {
+          keys: ["monter en mayonnaise", "émulsion", "mayonnaise"],
+          reponse: "<b>Émulsionner</b> : mélanger intimement de l'huile et de l'eau (jaune d'œuf + vinaigre) pour obtenir une préparation crémeuse. En pratique : moutarde + jaune + vinaigre, puis l'huile en filet TRÈS finement en fouettant. Si ça se sépare, repars d'une cuillère de moutarde et remets le mélange raté dessus petit à petit."
+        },
+        {
+          keys: ["pocher", "pochage"],
+          reponse: "<b>Pocher</b> : cuire doucement un aliment dans un liquide à frémissement (juste sous l'ébullition, 80–90 °C, avec de petites bulles). Idéal pour les œufs, le poisson, le poulet."
+        },
+        {
+          keys: ["braiser", "braise"],
+          reponse: "<b>Braiser</b> : saisir d'abord à feu vif, puis finir la cuisson longuement à couvert, à feu doux, dans un peu de liquide. C'est la méthode des plats mijotés : boeuf bourguignon, blanquette…"
+        }
+      ];
+
+      const FALLBACK = "Hmm, je ne suis pas sûr de comprendre 🤔\nVoici ce que je peux faire pour toi :\n• 🍽️ Donner des <b>recettes faciles</b> (pâtes, omelette, riz, poulet, crêpes, soupe, gâteau au yaourt, salade)\n• 💡 Partager des <b>conseils de débutant</b> (ustensiles, couteau, four, hygiène, restes, assaisonnement…)\n• 📖 Expliquer des <b>mots de cuisine</b> (déglacer, blanchir, saisir, pocher, émulsionner…)\n• 📏 Convertir des <b>mesures</b> (grammes, ml, cuillères, thermostats)\n\nEssaie par exemple : « recette de crêpes », « comment déglacer ? », « mon plat est trop salé ».";
+
+      // ---------- Moteur de réponse ----------
+      const norm = s => s.toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/['’]/g, " ");
+
+      function scoreEntry(entry, text) {
+        const t = " " + norm(text) + " ";
+        let best = 0;
+        for (const k of entry.keys) {
+          const key = norm(k);
+          if (t.includes(" " + key + " ") || t.includes(key)) best = Math.max(best, key.length);
+        }
+        return best;
+      }
+
+      function formatRecette(r) {
+        return "🍽️ <b>" + r.nom + "</b>\n⏱️ " + r.temps + " · 🎯 " + r.difficulte + " · 👥 " + r.pour + "\n\n" +
+          r.etapes.map((e, i) => "<b>Étape " + (i + 1) + ".</b> " + e).join("\n") +
+          "\n\nBon courage, tu vas y arriver ! 💪";
+      }
+
+      function answer(raw) {
+        const text = norm(raw);
+
+        // Salutations
+        if (/^\s*(salut|bonjour|bonsoir|hello|hey|coucou|yo)\b/.test(text))
+          return "Salut 👋 Ravi de te voir aux fourneaux !\nTu veux une recette facile, un conseil de débutant, ou tu cherches à comprendre un mot de cuisine ?";
+
+        if (/(merci|thanks|super|genial|parfait|top)\b/.test(text))
+          return "Avec grand plaisir ! 😊 N'hésite pas si tu as d'autres questions — et surtout, n'aie pas peur de rater : chaque grand cuisinier a commencé en brûlant des oignons.";
+
+        // Recettes
+        const recetteKey = Object.keys(RECETTES).find(k =>
+          norm(raw).includes(k) && /recette|faire|cuisiner|comment|idee|id(ee)|proposer|donne/.test(text) ||
+          text.includes(k)
+        );
+        if (recetteKey) return formatRecette(RECETTES[recetteKey]);
+
+        if (/(recette|idee|inspiration|menu|que.*cuisiner|quoi.*(faire|manger|cuisiner)|proposer)/.test(text))
+          return "Voici mes recettes du moment, toutes pensées pour les débutants :\n" +
+            Object.values(RECETTES).map(r => "• <b>" + r.nom + "</b> (" + r.temps + ", " + r.difficulte.toLowerCase() + ")").join("\n") +
+            "\n\nDis-moi simplement « recette de crêpes » (ou autre) et je te donne toutes les étapes !";
+
+        // Vulgarisation
+        for (const v of VULGARISATION) if (scoreEntry(v, raw) > 3) return v.reponse;
+
+        // Conseils
+        let bestConseil = null, bestScore = 3;
+        for (const c of CONSEILS) {
+          const s = scoreEntry(c, raw);
+          if (s > bestScore) { bestScore = s; bestConseil = c; }
+        }
+        if (bestConseil) return bestConseil.reponse;
+
+        // Détail gâteau (chocolat)
+        if (/gateau|gateau/.test(text) && !text.includes("yaourt")) return formatRecette(RECETTES["gâteau"]);
+
+        return FALLBACK;
+      }
+
+      // ---------- Interface ----------
+      const chat = document.getElementById("chat");
+      const form = document.getElementById("form");
+      const input = document.getElementById("input");
+      const chipsBox = document.getElementById("chips");
+
+      function addMsg(html, who) {
+        const div = document.createElement("div");
+        div.className = "msg " + who;
+        div.innerHTML = html;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      function botSay(html, delay) {
+        const t = document.createElement("div");
+        t.className = "msg bot typing";
+        t.innerHTML = "<span></span><span></span><span></span>";
+        chat.appendChild(t);
+        chat.scrollTop = chat.scrollHeight;
+        setTimeout(() => { t.remove(); addMsg(html, "bot"); }, delay || 500);
+      }
+
+      const SUGGESTIONS = [
+        "Recette de pâtes facile",
+        "Comment déglacer ?",
+        "Les essentiels pour débuter",
+        "Mon plat est trop salé !",
+        "Conversions de mesures",
+        "Recette de gâteau au yaourt",
+        "Bien utiliser son couteau",
+        "Cuisiner les restes"
+      ];
+
+      function renderChips() {
+        chipsBox.innerHTML = "";
+        for (const s of SUGGESTIONS.slice(0, 5)) {
+          const c = document.createElement("div");
+          c.className = "chip";
+          c.textContent = s;
+          c.onclick = () => { addMsg(s, "user"); botSay(answer(s), 450); };
+          chipsBox.appendChild(c);
+        }
+      }
+
+      form.addEventListener("submit", e => {
+        e.preventDefault();
+        const v = input.value.trim();
+        if (!v) return;
+        addMsg(v.replace(/</g, "&lt;"), "user");
+        input.value = "";
+        botSay(answer(v), 400 + Math.min(v.length * 6, 600));
+      });
+
+      // Message d'accueil
+      botSay("Bienvenue aux fourneaux, chef·fe ! 👨‍🍳\nJe suis ton assistant cuisine maison, spécialiste des <b>débutants et amateurs</b>.\n\nJe peux :\n• 🍽️ te proposer des <b>recettes simples étape par étape</b>\n• 💡 te donner des <b>conseils pratiques</b> (ustensiles, hygiène, rattrapages)\n• 📖 expliquer les <b>mots de cuisine</b> qui font peur (déglacer, saisir, pocher…)\n• 📏 t'aider à <b>convertir les mesures</b>\n\nPar quoi commence-t-on ? Tape une question ou clique sur une suggestion ci-dessous 👇", 300);
+      renderChips();
+    </script>
+  </body>
+</html>
